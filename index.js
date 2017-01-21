@@ -49,7 +49,7 @@ var execute = function( cmd, options, callback ) {
 	if ( options.params ) {
 		cmd += ' ' + options.params.join( " " );
 	}
-	exec( cmd, execOptions, function( err, stdo, stde ) {
+	return exec( cmd, execOptions, function( err, stdo, stde ) {
 		if ( !options.quiet ) {
 			process.stderr.write( stde.toString() );
 		}
@@ -63,12 +63,12 @@ var execute = function( cmd, options, callback ) {
 var executeSvn = function( params, options, callback ) {
 	options = options || {};
 	var cmd = ( options.svn || 'svn' ) + ' ' + params.join( " " );
-	execute( cmd, options, callback );
+	return execute( cmd, options, callback );
 };
 
 
 var executeSvnXml = function( params, options, callback ) {
-	executeSvn( params.concat( [ '--xml' ] ), options, function( err, data ) {
+	return executeSvn( params.concat( [ '--xml' ] ), options, function( err, data ) {
 		if ( !err ) {
 			xmlToJson( data, function( err2, json ) {
 				callback( err2, json );
@@ -344,6 +344,7 @@ exports.commands.rm = del;
  * @param {object} [options] - Options object
  * @param {function} [callback] - Complete callback
  * @alias exp
+ * @return {EventEmitter}
  */
 var exp = function( src, dst, options, callback ) {
 	if ( typeof options === 'function' ) {
@@ -352,7 +353,7 @@ var exp = function( src, dst, options, callback ) {
 	}
 	options = options || {};
 	addExtraOptions( [ 'revision', 'quiet', 'force' ], options );
-	executeSvn( [ 'export', src, dst ], options, callback );
+	return executeSvn( [ 'export', src, dst ], options, callback );
 };
 exports.commands.export = exp;
 exports.commands.exp = exp;
@@ -375,7 +376,7 @@ var imp = function( src, dst, options, callback ) {
 	}
 	options = options || {};
 	addExtraOptions( [ 'depth', 'quiet', 'force', 'msg' ], options );
-	executeSvn( [ 'import', src, dst ], options, callback );
+	return executeSvn( [ 'import', src, dst ], options, callback );
 };
 exports.commands.import = imp;
 exports.commands.imp = imp;
@@ -517,7 +518,7 @@ var move = function( srcs, dst, options, callback ) {
 	}
 	options = options || {};
 	addExtraOptions( [ 'quiet', 'force', 'msg' ], options );
-	executeSvn( [ 'move' ].concat( srcs ).concat( [ dst ] ), options, callback );
+	return executeSvn( [ 'move' ].concat( srcs ).concat( [ dst ] ), options, callback );
 };
 exports.commands.move = move;
 exports.commands.mv = move;
@@ -551,7 +552,7 @@ var propdel = function( propName, target, options, callback ) {
 	}
 	options = options || {};
 	addExtraOptions( [ 'quiet', 'depth' ], options, true );
-	executeSvn( [ 'propdel', propName, target ], options, callback );
+	return executeSvn( [ 'propdel', propName, target ], options, callback );
 };
 exports.commands.propdel = propdel;
 exports.commands.pdel = propdel;
@@ -579,7 +580,7 @@ var propget = function( propName, targets, options, callback ) {
 	}
 	options = options || {};
 	addExtraOptions( [ 'depth', 'revision' ], options, true );
-	executeSvnXml( [ 'propget', propName ].concat( targets ), options, callback );
+	return executeSvnXml( [ 'propget', propName ].concat( targets ), options, callback );
 };
 exports.commands.propget = propget;
 exports.commands.pget = propget;
